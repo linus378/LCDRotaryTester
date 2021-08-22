@@ -95,5 +95,10 @@ void loop() {
     strcat(buf2, " ");
   }
   strcat(buf2, "@250 RPM");
-  Serial.println(buf2);
+  lcd.begin();
+  lcd.backlight();
+  lcd.setCursor(0, 1);
+  lcd.print("Ergebnisse sind");
+  lcd.setCursor(2, 2);
+  lcd.print(buf2);
 }
