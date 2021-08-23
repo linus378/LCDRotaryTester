@@ -6,8 +6,7 @@
   connected to the AI0 pin. You can use sensors with other pressure or voltage
   ranges but you'll need to modify the code.
 */
-#include <LiquidCrystal_I2C.h>
-#include <Wire.h>
+
 #define SENSOR 0                                                // Analog input pin that sensor is connected too
 
 const float dead_space = 1.2;                                   // correction factor to match values to the Mazda OEM Tester
@@ -27,16 +26,14 @@ unsigned long rpm[no_measurement_series];                       // Buffer to sto
 
 char buf1[5], buf2[75];                                         // Definde char buffers for temp and output
 
-void setup()
-{
-  // initialize the LCD
-  lcd.begin();
-  
-  delay(500);
+void setup() {
+  Serial.begin(57600);                                          // serial speed
+  delay(500);                                                   // hang out for half a second
 
-  // Turn on the blacklight and print a message.
-  lcd.backlight();
-  lcd.print("Tester Ready");
+  Serial.println("      TR-01 Open-Source");
+  Serial.println("Rotary Engine Compression Tester");
+  Serial.println("Firmware v1.1 Tester Version 2/2020");
+  Serial.println("");
 }
 
 int find_max() {                                                // Function to look for pressure peaks
