@@ -56,11 +56,11 @@ int find_max() {                                                // Function to l
   while ((current_max - sensor_measurement) < max_threshold) {
     if (sensor_measurement > current_max)
       current_max = sensor_measurement;
-    sensor_measurement = (analogRead(SENSOR));
+    sensor_measurement = (analogReadTest());
   }
   int current_min = sensor_measurement;
   while ((sensor_measurement - current_min) < min_threshold) {
-    sensor_measurement = (analogRead(SENSOR));
+    sensor_measurement = (analogReadTest());
     if (sensor_measurement < current_min)
       current_min = sensor_measurement;
   }
@@ -80,7 +80,7 @@ void setup()
 }
 void loop() {
 
-  if (analogRead(SENSOR) < baseline) {                          // Only start measuring once we exceed the baseline
+  if (analogReadTest() < baseline) {                          // Only start measuring once we exceed the baseline
     return;
   }
 
