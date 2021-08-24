@@ -33,8 +33,14 @@ int testcham=0;
 float analogReadTest()
 {
   float readval=0.0;
-  if ( testcham == 0 ){}
-  if ( testcham == 1 ){}
+  if ( testcham == 0 )
+  {
+    readval=1;
+  }
+  if ( testcham == 1 )
+  {
+    readval=2;
+  }
   if ( testcham == 2 )
   {
     testcham=-1;
