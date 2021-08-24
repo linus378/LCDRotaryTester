@@ -6,7 +6,7 @@
   connected to the AI0 pin. You can use sensors with other pressure or voltage
   ranges but you'll need to modify the code.
 */
-#include <LiquidCrystal_I2C.h>
+#include "LiquidCrystal_I2C.h"
 #include <Wire.h>
 #define SENSOR 0                                                // Analog input pin that sensor is connected too
 
@@ -35,16 +35,16 @@ float analogReadTest()
   float readval=0.0;
   if ( testcham == 0 )
   {
-    readval=1;
+    readval=15.6;
   }
   if ( testcham == 1 )
   {
-    readval=2;
+    readval=16.1;
   }
   if ( testcham == 2 )
   {
     testcham=-1;
-    readval=3;
+    readval=17.1;
   }
   testcham++;
   return readval;
@@ -70,7 +70,7 @@ int find_max() {                                                // Function to l
 void setup()
 {
   // initialize the LCD
-  lcd.begin(0x27, 16, 2);
+  lcd.begin();
   
   delay(500);
 
