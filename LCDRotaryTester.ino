@@ -35,16 +35,16 @@ float analogReadTest()
   float readval=0.0;
   if ( testcham == 0 )
   {
-    readval=215.6;
+    readval=random(200, 220);
   }
   if ( testcham == 1 )
   {
-    readval=216.1;
+    readval=random(220, 240);
   }
   if ( testcham == 2 )
   {
     testcham=-1;
-    readval=217.1;
+    readval=random(240, 260);
   }
   testcham++;
   return readval;
@@ -137,5 +137,6 @@ void loop() {
   lcd.print("Ergebnisse sind");
   lcd.setCursor(2, 2);
   lcd.print(buf2);
+  Serial.println(buf2);
   delay(2000);
 }
