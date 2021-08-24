@@ -53,9 +53,18 @@ float analogReadTest()
 int find_max() {                                                // Function to look for pressure peaks
   int current_max = 0;
   int sensor_measurement = analogReadTest();
-  while ((current_max - sensor_measurement) < max_threshold) {
+  /*
+   * max_threshold=15
+   * 
+   */
+  while ((current_max - sensor_measurement) < max_threshold) 
+  {
+    Serial.println("in find_max < max_threshold");  
     if (sensor_measurement > current_max)
+    {
       current_max = sensor_measurement;
+      Serial.println(current_max);   
+    }
     sensor_measurement = (analogReadTest());
   }
   int current_min = sensor_measurement;
@@ -80,22 +89,26 @@ void setup()
   lcd.print("Tester Ready");
 }
 void loop() {
-  delay(1000);
   Serial.println("enter loop");
   if (analogReadTest() < baseline) {                          // Only start measuring once we exceed the baseline
     Serial.println("Only start measuring once we exceed the baseline");
     return;
   }
 
+  Serial.println("first for");
   for (int i = 0; i < no_measurement_series; ++i) {
     unsigned long start_time = millis();                        // record cycle begining time for RPM calculation
+    Serial.println("second for");
     for (int chamber = 0; chamber < no_chambers; ++chamber) {
+      Serial.println("chamber");
       max_buffer[i][chamber] = find_max();
+      //max_buffer[i][chamber] = 2;
     }
     unsigned long end_time = millis();                          // record cycle end time for RPM calculation
     rpm[i] = round(180000.f / (end_time - start_time));
   }
 
+  Serial.println("third for");
   float pressure_chamber[no_chambers];
   float correction = a0 + a1 * rpm[reliable_measurement] + a2 * sq(rpm[reliable_measurement]);
   for (int chamber = 0; chamber < no_chambers; ++chamber) {
@@ -124,4 +137,5 @@ void loop() {
   lcd.print("Ergebnisse sind");
   lcd.setCursor(2, 2);
   lcd.print(buf2);
+  delay(2000);
 }
