@@ -35,16 +35,16 @@ float analogReadTest()
   float readval=0.0;
   if ( testcham == 0 )
   {
-    readval=15.6;
+    readval=215.6;
   }
   if ( testcham == 1 )
   {
-    readval=16.1;
+    readval=216.1;
   }
   if ( testcham == 2 )
   {
     testcham=-1;
-    readval=17.1;
+    readval=217.1;
   }
   testcham++;
   return readval;
@@ -69,6 +69,7 @@ int find_max() {                                                // Function to l
 
 void setup()
 {
+  Serial.begin(38400);
   // initialize the LCD
   lcd.begin();
   
@@ -79,8 +80,10 @@ void setup()
   lcd.print("Tester Ready");
 }
 void loop() {
-
+  delay(1000);
+  Serial.println("enter loop");
   if (analogReadTest() < baseline) {                          // Only start measuring once we exceed the baseline
+    Serial.println("Only start measuring once we exceed the baseline");
     return;
   }
 
