@@ -28,22 +28,25 @@ int max_buffer[no_measurement_series][no_chambers];             // Buffer to sto
 unsigned long rpm[no_measurement_series];                       // Buffer to store rpm values
 
 char buf1[5], buf2[75];                                         // Definde char buffers for temp and output
+int testcham=0;
 
-void setup()
+float analogReadTest()
 {
-  // initialize the LCD
-  lcd.begin();
-  
-  delay(500);
-
-  // Turn on the blacklight and print a message.
-  lcd.backlight();
-  lcd.print("Tester Ready");
+  float readval=0.0;
+  if ( testcham == 0 ){}
+  if ( testcham == 1 ){}
+  if ( testcham == 2 )
+  {
+    testcham=-1;
+    readval=3;
+  }
+  testcham++;
+  return readval;
 }
 
 int find_max() {                                                // Function to look for pressure peaks
   int current_max = 0;
-  int sensor_measurement = analogRead(SENSOR);
+  int sensor_measurement = analogReadTest();
   while ((current_max - sensor_measurement) < max_threshold) {
     if (sensor_measurement > current_max)
       current_max = sensor_measurement;
@@ -58,6 +61,17 @@ int find_max() {                                                // Function to l
   return current_max;
 }
 
+void setup()
+{
+  // initialize the LCD
+  lcd.begin(0x27, 16, 2);
+  
+  delay(500);
+
+  // Turn on the blacklight and print a message.
+  lcd.backlight();
+  lcd.print("Tester Ready");
+}
 void loop() {
 
   if (analogRead(SENSOR) < baseline) {                          // Only start measuring once we exceed the baseline
@@ -95,8 +109,8 @@ void loop() {
     strcat(buf2, " ");
   }
   strcat(buf2, "@250 RPM");
-  lcd.begin();
-  lcd.backlight();
+  //lcd.begin(0x27, 16, 2);
+  //lcd.backlight();
   lcd.setCursor(0, 1);
   lcd.print("Ergebnisse sind");
   lcd.setCursor(2, 2);
