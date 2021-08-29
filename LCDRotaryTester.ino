@@ -8,6 +8,10 @@
 */
 #include "LiquidCrystal_I2C.h"
 #include <Wire.h>
+#include <Ticker.h>  //Ticker Library
+
+Ticker SimValTimer;
+
 #define SENSOR 0                                                // Analog input pin that sensor is connected too
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -29,25 +33,18 @@ unsigned long rpm[no_measurement_series];                       // Buffer to sto
 
 char buf1[5], buf2[75];                                         // Definde char buffers for temp and output
 int testcham=0;
+float readsimval = 0;
+
+void SimVal()
+{
+  //i will be called from timer
+  //we need a values between 0.5 - 5  
+  readsimval=1;
+}
 
 float analogReadTest()
 {
-  float readval=0.0;
-  if ( testcham == 0 )
-  {
-    readval=random(200, 220);
-  }
-  if ( testcham == 1 )
-  {
-    readval=random(220, 240);
-  }
-  if ( testcham == 2 )
-  {
-    testcham=-1;
-    readval=random(240, 260);
-  }
-  testcham++;
-  return readval;
+  return readsimval;
 }
 
 int find_max() {                                                // Function to look for pressure peaks
@@ -78,7 +75,9 @@ int find_max() {                                                // Function to l
 
 void setup()
 {
-  Serial.begin(38400);
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println();
   // initialize the LCD
   lcd.begin();
   
@@ -87,6 +86,7 @@ void setup()
   // Turn on the blacklight and print a message.
   lcd.backlight();
   lcd.print("Tester Ready");
+  SimValTimer.attach_ms(200, SimVal); //Use attach_ms if you need
 }
 void loop() {
   Serial.println("enter loop");
