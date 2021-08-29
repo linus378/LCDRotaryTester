@@ -22,7 +22,8 @@ const float a0 = 8.5944582043344;                               // polynom Fit a
 const float a1 = -4.8028702270382E-02;                          // polynom Fit a1 to norm values to 250rpm
 const float a2 = 5.4250515995872E-05;                           // polynom Fit a2 to norm values to 250rpm
 const int baseline = 200;                                       // If sensor reading are below baseline we assume there is no measurement
-const int no_measurement_series = 5;                            // We record 5 sets of values as we consider the first and last two unreliable
+//const int no_measurement_series = 5;                            // We record 5 sets of values as we consider the first and last two unreliable
+const int no_measurement_series = 10;
 const int reliable_measurement = no_measurement_series / 2;
 const int no_chambers = 3;                                      // The rotary engine has three chambers
 const int max_threshold = 15;                                   // Threshold to look for max and min values, cannot be zero due to noise
@@ -35,8 +36,9 @@ char buf1[5], buf2[75];                                         // Definde char 
 int testcham=0;
 
 //lower limit for sim of three chambers
-float simlowerlimitchamber[] = {0.5, 0.6, 0.7};
-float simupperlimitchamber[] = {216.0, 217.8, 218.7};
+//float simlowerlimitchamber[] = {200, 200, 200};
+float simlowerlimitchamber[] = {0, 0, 0};
+float simupperlimitchamber[] = {210.0, 240.8, 280.7};
 float readsimval = simlowerlimitchamber[0];
 int simcuractivechamber=0;
 bool ascending_flank=true;
@@ -54,8 +56,9 @@ void SimVal()
     if (readsimval>=simupperlimitchamber[simcuractivechamber] )
     {
       //we change dir
-      Serial.println("change to decending_flank");
+      //Serial.println("change to decending_flank");
       ascending_flank=false;  
+      Serial.println((String)"leave sim val chamber "+simcuractivechamber+' '+" value "+readsimval);
     }  
     else
     {
@@ -69,7 +72,7 @@ void SimVal()
     //descending if bottom change chamber to sim
     if (readsimval<=simlowerlimitchamber[simcuractivechamber])
     {
-      Serial.println("change to accending_flank");
+      //Serial.println("change to accending_flank");
       //change chamber and flank
       simcuractivechamber++;
       if (simcuractivechamber==3)
@@ -83,12 +86,14 @@ void SimVal()
     {
       //Serial.println((String)"decrise chamber "+simcuractivechamber);
       readsimval-=stepval;   
+      //disable sim of loosing pressure
+      readsimval=simlowerlimitchamber[simcuractivechamber];
     }
   }
-  if ( (int) readsimval % 100 == 0) 
+  /*if ( (int) readsimval % 100 == 0) 
   {
      Serial.println((String)"leave sim val chamber "+simcuractivechamber+' '+" value "+readsimval);
-  }
+  }*/
 }
 
 float analogReadTest()
@@ -105,8 +110,8 @@ int find_max() {                                                // Function to l
    * 
    */
   while ((current_max - sensor_measurement) < max_threshold) 
-  {
-    Serial.println("in find_max < max_threshold");  
+  {  
+    Serial.println((String)"in find_max current_max - sensor_measurement) < max_threshold "+simcuractivechamber+' '+" current_max "+current_max + " sensor_measurement "+sensor_measurement+" max_threshold "+max_threshold);
     if (sensor_measurement > current_max)
     {
       current_max = sensor_measurement;
@@ -131,26 +136,26 @@ void setup()
   // initialize the LCD
   lcd.begin();
   
-  delay(500);
-
   // Turn on the blacklight and print a message.
   lcd.backlight();
   lcd.print("Tester Ready");
-  SimValTimer.attach_ms(10, SimVal); //Use attach_ms if you need
+  SimValTimer.attach_ms(200, SimVal); //Use attach_ms if you need
+  delay(500);
 }
 void loop() {
-  Serial.println("enter loop");
+  //Serial.println("enter loop");
+  /* ignore test code is ready
   if (analogReadTest() < baseline) {                          // Only start measuring once we exceed the baseline
     Serial.println("Only start measuring once we exceed the baseline");
     return;
-  }
+  }*/
 
-  Serial.println("first for");
+  //Serial.println("first for");
   for (int i = 0; i < no_measurement_series; ++i) {
     unsigned long start_time = millis();                        // record cycle begining time for RPM calculation
-    Serial.println("second for");
+    //Serial.println("second for");
     for (int chamber = 0; chamber < no_chambers; ++chamber) {
-      Serial.println("chamber");
+      //Serial.println("chamber");
       max_buffer[i][chamber] = find_max();
       //max_buffer[i][chamber] = 2;
     }
@@ -158,7 +163,7 @@ void loop() {
     rpm[i] = round(180000.f / (end_time - start_time));
   }
 
-  Serial.println("third for");
+  //Serial.println("third for");
   float pressure_chamber[no_chambers];
   float correction = a0 + a1 * rpm[reliable_measurement] + a2 * sq(rpm[reliable_measurement]);
   for (int chamber = 0; chamber < no_chambers; ++chamber) {
@@ -188,5 +193,5 @@ void loop() {
   lcd.setCursor(2, 2);
   lcd.print(buf2);
   Serial.println(buf2);
-  delay(2000);
+  delay(5000);
 }
