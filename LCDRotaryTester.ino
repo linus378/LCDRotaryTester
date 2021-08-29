@@ -33,17 +33,62 @@ unsigned long rpm[no_measurement_series];                       // Buffer to sto
 
 char buf1[5], buf2[75];                                         // Definde char buffers for temp and output
 int testcham=0;
-float readsimval = 0;
+
+//lower limit for sim of three chambers
+float simlowerlimitchamber[] = {0.5, 0.6, 0.7};
+float simupperlimitchamber[] = {216.0, 217.8, 218.7};
+float readsimval = simlowerlimitchamber[0];
+int simcuractivechamber=0;
+bool ascending_flank=true;
 
 void SimVal()
 {
+  Serial.println("Enter SimVal");
   //i will be called from timer
   //we need a values between 0.5 - 5  
-  readsimval=1;
+  if ( ascending_flank )
+  {
+    Serial.println("ascending_flank");
+    //check if we reach the upper limit
+    if (simupperlimitchamber[simcuractivechamber]>=readsimval )
+    {
+      //we change dir
+      ascending_flank=false;  
+    }  
+    else
+    {
+      readsimval+=0.1;   
+    }  
+  }
+  else
+  {
+    Serial.println("decending_flank");
+    //descending if bottom change chamber to sim
+    if (simlowerlimitchamber[simcuractivechamber]<=readsimval)
+    {
+      //change chamber and flank
+      simcuractivechamber++;
+      if (simcuractivechamber==3)
+      {
+        simcuractivechamber=0;
+      }  
+      ascending_flank=true;  
+      readsimval=simlowerlimitchamber[simcuractivechamber];
+    }
+    else
+    {
+      readsimval-=0.1;   
+    }
+  }
+  Serial.print("leave sim val chamber ");
+  Serial.print(simcuractivechamber);
+  Serial.print(" sim value");
+  Serial.println(readsimval);
 }
 
 float analogReadTest()
 {
+  delay(1000);
   return readsimval;
 }
 
