@@ -40,32 +40,36 @@ float simupperlimitchamber[] = {216.0, 217.8, 218.7};
 float readsimval = simlowerlimitchamber[0];
 int simcuractivechamber=0;
 bool ascending_flank=true;
+float stepval=10.1;
 
 void SimVal()
 {
-  Serial.println("Enter SimVal");
+  //Serial.println("Enter SimVal");
   //i will be called from timer
   //we need a values between 0.5 - 5  
   if ( ascending_flank )
   {
-    Serial.println("ascending_flank");
+    //Serial.println("ascending_flank");
     //check if we reach the upper limit
-    if (simupperlimitchamber[simcuractivechamber]>=readsimval )
+    if (readsimval>=simupperlimitchamber[simcuractivechamber] )
     {
       //we change dir
+      Serial.println("change to decending_flank");
       ascending_flank=false;  
     }  
     else
     {
-      readsimval+=0.1;   
+      //Serial.println((String)"incrise chamber "+simcuractivechamber);
+      readsimval+=stepval;   
     }  
   }
   else
   {
-    Serial.println("decending_flank");
+    //Serial.println("decending_flank");
     //descending if bottom change chamber to sim
-    if (simlowerlimitchamber[simcuractivechamber]<=readsimval)
+    if (readsimval<=simlowerlimitchamber[simcuractivechamber])
     {
+      Serial.println("change to accending_flank");
       //change chamber and flank
       simcuractivechamber++;
       if (simcuractivechamber==3)
@@ -77,13 +81,14 @@ void SimVal()
     }
     else
     {
-      readsimval-=0.1;   
+      //Serial.println((String)"decrise chamber "+simcuractivechamber);
+      readsimval-=stepval;   
     }
   }
-  Serial.print("leave sim val chamber ");
-  Serial.print(simcuractivechamber);
-  Serial.print(" sim value");
-  Serial.println(readsimval);
+  if ( (int) readsimval % 100 == 0) 
+  {
+     Serial.println((String)"leave sim val chamber "+simcuractivechamber+' '+" value "+readsimval);
+  }
 }
 
 float analogReadTest()
@@ -131,7 +136,7 @@ void setup()
   // Turn on the blacklight and print a message.
   lcd.backlight();
   lcd.print("Tester Ready");
-  SimValTimer.attach_ms(200, SimVal); //Use attach_ms if you need
+  SimValTimer.attach_ms(10, SimVal); //Use attach_ms if you need
 }
 void loop() {
   Serial.println("enter loop");
